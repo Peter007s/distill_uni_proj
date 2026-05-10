@@ -1,10 +1,18 @@
 from pathlib import Path
 import torch
 
+NUM_CLASSES = 200
+
 IMG_SIZE = 224
 BATCH_SIZE = 64
 NUM_WORKERS = 4
 
 VAL_SIZE = 0.1
 
-NUM_CLASSES = 200
+
+DISTILL_CLS_LOSS = 0.5
+
+DEVICE = 'cuda'
+
+LEARNING_RATE = 0.0001
+NUM_EPOCHS = 5

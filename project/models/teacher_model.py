@@ -10,4 +10,5 @@ def teacher_model():
         param.requires_grad = False
     model.eval()
     
+    model = model.to(config.DEVICE)
     return model

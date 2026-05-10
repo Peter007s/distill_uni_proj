@@ -1,6 +1,3 @@
-from pathlib import Path
-import torch
-
 NUM_CLASSES = 200
 
 IMG_SIZE = 224

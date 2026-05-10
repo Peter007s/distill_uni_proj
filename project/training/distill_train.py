@@ -1,10 +1,9 @@
-"""Variant 2: Embedding distillation."""
 import torch
 import torch.nn as nn
 import config
-from models.embeddings import extract_embedding, get_embedding_dim
-from train_baseline import validate
-from losses.combined_loss import combined_loss
+from models.embedding import extract_embedding, get_embedding_dim
+from training.validation import validate
+from distill_loss import distillation_loss
 
 def train_distillation(teacher, student, train_loader, val_loader,
                        teacher_name='resnet50', student_name='resnet18',
@@ -35,7 +34,7 @@ def train_distillation(teacher, student, train_loader, val_loader,
             if projection:
                 student_emb = projection(student_emb)
             
-            loss, cls_loss, distill_loss = combined_loss(
+            loss, cls_loss, distill_l = distillation_loss(
                 logits, labels, student_emb, teacher_emb, alpha, distill_type
             )
             

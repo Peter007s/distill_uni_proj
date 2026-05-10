@@ -1,0 +1,7 @@
+venv/
+project/data/tinyimagenet
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyc

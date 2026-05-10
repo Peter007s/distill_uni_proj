@@ -1,12 +1,15 @@
 def get_embedding_dim(name):
     dims = {
+        'cifar10_resnet56': 64,
+        'resnet20': 64,
+        'resnet32': 64,
         'resnet50': 2048,
         'resnet18': 512,
         'mobilenet_v3_small': 576,
         'shufflenet_v2_x0_5': 1024,
         'squeezenet1_0': 512,
     }
-    return dims.get(name, 512)
+    return dims.get(name, 64)
 
 def extract_embedding(model, x):
     emb = None

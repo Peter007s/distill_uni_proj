@@ -14,18 +14,14 @@ from data.create_dataloader import *
 if __name__ == '__main__':
     train_load, val_load, test_load = load_and_create_dataloaders()
     
-    hist = train_baseline(
-        create_student('resnet20'),
-        train_load,
-        val_load,
-        epochs = 5
-    )
     hist = train_distillation(
         teacher=teacher_model(),
-        student=create_student('resnet20'),
+        student=create_student('custom'),
         train_loader=train_load,
         val_loader=val_load,
+        test_loader = test_load,
         teacher_name='cifar10_resnet56',
-        student_name='resnet20',
-        epochs=5
+        student_name='custom',
+        epochs=5,
+        alpha = 0.6
     )

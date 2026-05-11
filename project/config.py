@@ -12,7 +12,7 @@ DISTILL_CLS_LOSS = 0.5
 DEVICE = 'cuda'
 
 LEARNING_RATE = 0.001
-NUM_EPOCHS = 5
+NUM_EPOCHS = 30
 
 CIFAR10_CLASSES = [
     'airplane', 'automobile', 'bird', 'cat', 'deer',

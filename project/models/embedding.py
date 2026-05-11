@@ -8,10 +8,14 @@ def get_embedding_dim(name):
         'mobilenet_v3_small': 576,
         'shufflenet_v2_x0_5': 1024,
         'squeezenet1_0': 512,
+        'custom': 32
     }
     return dims.get(name, 64)
 
 def extract_embedding(model, x, detach=True):
+    if hasattr(model, 'get_embedding'):
+        return model.get_embedding(x)
+
     emb = None
     def hook(module, input, output):
         nonlocal emb

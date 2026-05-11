@@ -4,13 +4,14 @@ import wandb
 import config
 from training.validation import validate
 from training.wandb_log import log_embeddings_to_wandb
-def train_baseline(model, train_loader, val_loader, epochs=None, lr=None, model_name="resnet20"):
+def train_baseline(model, train_loader, val_loader, test_loader, epochs=None, lr=None, model_name="resnet20"):
     epochs = epochs or config.NUM_EPOCHS
     lr = lr or config.LEARNING_RATE
     
     wandb.init(
         project="distill_uni_proj", 
-        name=f"baseline_{model_name}", 
+        name=f"baseline_{model_name}",
+        mode="offline",
         config={
             "learning_rate": lr,
             "epochs": epochs,
@@ -55,7 +56,9 @@ def train_baseline(model, train_loader, val_loader, epochs=None, lr=None, model_
         
         print(f"Epoch {epoch} | Total Loss: {train_loss:.4f} | Acc: {val_acc:.2f}%")
     
-    
+    test_loss, test_acc = validate(model, test_loader)
+    wandb.log({"test_loss": test_loss, "test_acc": test_acc})
+
     log_embeddings_to_wandb(
         model=model,
         dataloader=val_loader, 

@@ -3,7 +3,7 @@ import torch
 import torch.nn as nn
 
 class CifarSmall(nn.Module):
-    def __init__(self, embed_dim=128, num_classes=10):
+    def __init__(self, embed_dim=64, num_classes=10):
         super().__init__()
         # §4: backbone → global pooling → embedding → classifier
         self.backbone = nn.Sequential(

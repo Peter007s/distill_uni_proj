@@ -6,8 +6,8 @@ from models.embedding import extract_embedding, get_embedding_dim
 from training.validation import validate
 from distill_loss import distillation_loss
 from training.wandb_log import log_embeddings_to_wandb
-def train_distillation(teacher, student, train_loader, val_loader,
-                       teacher_name='resnet50', student_name='resnet18',
+def train_distillation(teacher, student, train_loader, val_loader, test_loader,
+                       teacher_name='cifar10_resnet56', student_name='resnet18',
                        epochs=None, lr=None, alpha=0.5, distill_type='cosine'):
     epochs = epochs or config.NUM_EPOCHS
     lr = lr or config.LEARNING_RATE
@@ -15,6 +15,7 @@ def train_distillation(teacher, student, train_loader, val_loader,
     wandb.init(
         project="distill_uni_proj", 
         name=f"{student_name}_alpha_{alpha}",
+        mode="offline",
         config={
             "learning_rate": lr,
             "epochs": epochs,
@@ -33,6 +34,8 @@ def train_distillation(teacher, student, train_loader, val_loader,
     params = list(student.parameters()) + (list(projection.parameters()) if projection else [])
     optimizer = torch.optim.Adam(params, lr=lr)
     
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=epochs, eta_min=1e-6)
+
     history = {'train_loss': [], 'val_acc': []}
     
     for epoch in range(epochs):
@@ -77,9 +80,11 @@ def train_distillation(teacher, student, train_loader, val_loader,
             "distill_loss": avg_distill_loss
         })
 
-        history['train_loss'].append(train_loss)
-        history['val_acc'].append(val_acc)
+        scheduler.step
         print(f"Epoch {epoch} | Train Loss: {train_loss:.4f} | Acc: {val_acc:.2f}% | Cls_loss:  {avg_cls_loss:.2f} | distill_loss: {avg_distill_loss:.2f}")
+
+    test_loss, test_acc = validate(student, test_loader)
+    wandb.log({"test_loss": test_loss, "test_acc": test_acc})
 
     log_embeddings_to_wandb(
         model=student, 

@@ -11,21 +11,14 @@ from training.baseline_train import *
 from training.distill_train import *
 from distill_loss import *
 from data.create_dataloader import *
+from training.wandb_log import *
 if __name__ == '__main__':
     train_load, val_load, test_load = load_and_create_dataloaders()
-    
-    hist = train_baseline(
-        create_student('resnet20'),
-        train_load,
-        val_load,
-        epochs = 5
+    wandb.init(
+        project="distill_uni_proj", 
+        name="gen_graph",
+        config={
+        },
+        reinit=True
     )
-    hist = train_distillation(
-        teacher=teacher_model(),
-        student=create_student('resnet20'),
-        train_loader=train_load,
-        val_loader=val_load,
-        teacher_name='cifar10_resnet56',
-        student_name='resnet20',
-        epochs=5
-    )
+    log_embeddings_to_wandb(teacher_model(), val_load, 'gen_graph')

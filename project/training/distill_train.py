@@ -5,16 +5,16 @@ import config
 from models.embedding import extract_embedding, get_embedding_dim
 from training.validation import validate
 from distill_loss import distillation_loss
-
+from training.wandb_log import log_embeddings_to_wandb
 def train_distillation(teacher, student, train_loader, val_loader,
                        teacher_name='resnet50', student_name='resnet18',
-                       epochs=None, lr=None, alpha=0.5, distill_type='mse'):
+                       epochs=None, lr=None, alpha=0.5, distill_type='cosine'):
     epochs = epochs or config.NUM_EPOCHS
     lr = lr or config.LEARNING_RATE
     
     wandb.init(
         project="distill_uni_proj", 
-        name=f"distill_alpha_{alpha}",
+        name=f"{student_name}_alpha_{alpha}",
         config={
             "learning_rate": lr,
             "epochs": epochs,
@@ -79,5 +79,11 @@ def train_distillation(teacher, student, train_loader, val_loader,
         history['train_loss'].append(train_loss)
         history['val_acc'].append(val_acc)
         print(f"Epoch {epoch} | Train Loss: {train_loss:.4f} | Acc: {val_acc:.2f}% | Cls_loss:  {avg_cls_loss:.2f} | distill_loss: {avg_distill_loss:.2f}")
-    
+
+    log_embeddings_to_wandb(
+        model=student, 
+        dataloader=val_loader, 
+        run_name=f"{student_name}_alpha_{alpha}", 
+        num_batches=15
+    )
     return history

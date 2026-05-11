@@ -3,7 +3,7 @@ import torch.nn.functional as F
 import wandb
 import config
 from training.validation import validate
-
+from training.wandb_log import log_embeddings_to_wandb
 def train_baseline(model, train_loader, val_loader, epochs=None, lr=None, model_name="resnet20"):
     epochs = epochs or config.NUM_EPOCHS
     lr = lr or config.LEARNING_RATE
@@ -54,6 +54,13 @@ def train_baseline(model, train_loader, val_loader, epochs=None, lr=None, model_
         
         print(f"Epoch {epoch} | Total Loss: {train_loss:.4f} | Acc: {val_acc:.2f}%")
     
-    wandb.finish()
     
+    log_embeddings_to_wandb(
+        model=model,
+        dataloader=val_loader, 
+        run_name=f"baseline_{model_name}", 
+        num_batches=15
+    )
+    
+    wandb.finish()
     return history

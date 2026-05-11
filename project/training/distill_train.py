@@ -47,7 +47,7 @@ def train_distillation(teacher, student, train_loader, val_loader,
                 teacher_emb = extract_embedding(teacher, inputs)
             
             logits = student(inputs)
-            student_emb = extract_embedding(student, inputs)
+            student_emb = extract_embedding(student, inputs, False)
             if projection:
                 student_emb = projection(student_emb)
             
@@ -64,13 +64,14 @@ def train_distillation(teacher, student, train_loader, val_loader,
 
 
         train_loss /= len(train_loader)
-        val_acc = validate(student, val_loader)
+        val_loss, val_acc = validate(student, val_loader)
 
         avg_cls_loss = cls_loss_sum / len(train_loader)
         avg_distill_loss = distill_sum / len(train_loader)
         wandb.log({
             "epoch": epoch,
             "train_loss": train_loss,
+            "val_loss": val_loss,
             "val_acc": val_acc,
             "cls_loss": avg_cls_loss,
             "distill_loss": avg_distill_loss

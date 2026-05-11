@@ -41,7 +41,7 @@ def train_baseline(model, train_loader, val_loader, epochs=None, lr=None, model_
             train_loss += loss.item()
         
         train_loss /= len(train_loader)
-        val_acc = validate(model, val_loader)
+        val_loss, val_acc = validate(model, val_loader)
         
         history['train_loss'].append(train_loss)
         history['val_acc'].append(val_acc)
@@ -49,7 +49,8 @@ def train_baseline(model, train_loader, val_loader, epochs=None, lr=None, model_
         wandb.log({
             "epoch": epoch,
             "train_loss": train_loss,
-            "val_acc": val_acc
+            "val_acc": val_acc,
+            "val_loss" : val_loss
         })
         
         print(f"Epoch {epoch} | Total Loss: {train_loss:.4f} | Acc: {val_acc:.2f}%")
@@ -61,6 +62,6 @@ def train_baseline(model, train_loader, val_loader, epochs=None, lr=None, model_
         run_name=f"baseline_{model_name}", 
         num_batches=15
     )
-    
+
     wandb.finish()
     return history

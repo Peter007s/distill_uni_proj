@@ -11,11 +11,14 @@ def get_embedding_dim(name):
     }
     return dims.get(name, 64)
 
-def extract_embedding(model, x):
+def extract_embedding(model, x, detach=True):
     emb = None
     def hook(module, input, output):
         nonlocal emb
-        emb = output.detach()
+        if detach:
+            emb = output.detach()
+        else:
+            emb = output
         if emb.dim() == 4:
             emb = emb.squeeze(-1).squeeze(-1)
     

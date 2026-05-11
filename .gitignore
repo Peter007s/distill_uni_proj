@@ -7,3 +7,4 @@ __pycache__/
 *.pyc
 project/data/cifar-10-batches-py
 project/data/cifar-10-python.tar.gz
+project/wandb

@@ -1,5 +1,4 @@
 import torch
-import torch.nn.functional as F
 import config
 
 def validate(model, loader):

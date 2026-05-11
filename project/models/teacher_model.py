@@ -1,5 +1,4 @@
 import torch
-import torch.nn as nn
 import config
 
 def teacher_model():

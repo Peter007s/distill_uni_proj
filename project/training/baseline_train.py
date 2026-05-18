@@ -11,7 +11,6 @@ def train_baseline(model, train_loader, val_loader, test_loader, epochs=None, lr
     wandb.init(
         project="distill_uni_proj", 
         name=f"baseline_{model_name}",
-        mode="offline",
         config={
             "learning_rate": lr,
             "epochs": epochs,
@@ -23,6 +22,7 @@ def train_baseline(model, train_loader, val_loader, test_loader, epochs=None, lr
     )
     
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=epochs, eta_min=1e-6)
     history = {'train_loss': [], 'val_acc': []}
     
     for epoch in range(epochs):
@@ -44,17 +44,20 @@ def train_baseline(model, train_loader, val_loader, test_loader, epochs=None, lr
         train_loss /= len(train_loader)
         val_loss, val_acc = validate(model, val_loader)
         
+        current_lr = optimizer.param_groups[0]['lr']
+
         history['train_loss'].append(train_loss)
         history['val_acc'].append(val_acc)
-        
+        scheduler.step()
         wandb.log({
             "epoch": epoch,
             "train_loss": train_loss,
             "val_acc": val_acc,
-            "val_loss" : val_loss
+            "val_loss" : val_loss,
+            "learning_rate": current_lr
         })
         
-        print(f"Epoch {epoch} | Total Loss: {train_loss:.4f} | Acc: {val_acc:.2f}%")
+        print(f"Epoch {epoch} | LR: {current_lr:.6f} | Total Loss: {train_loss:.4f} | Acc: {val_acc:.2f}%")
     
     test_loss, test_acc = validate(model, test_loader)
     wandb.log({"test_loss": test_loss, "test_acc": test_acc})

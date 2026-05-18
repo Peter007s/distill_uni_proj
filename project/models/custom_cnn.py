@@ -3,9 +3,8 @@ import torch
 import torch.nn as nn
 
 class CifarSmall(nn.Module):
-    def __init__(self, embed_dim=64, num_classes=10):
+    def __init__(self, embed_dim=32, num_classes=10):
         super().__init__()
-        # §4: backbone → global pooling → embedding → classifier
         self.backbone = nn.Sequential(
             nn.Conv2d(3, 64, 3, padding=1), nn.BatchNorm2d(64), nn.ReLU(),
             nn.Conv2d(64, 64, 3, padding=1), nn.BatchNorm2d(64), nn.ReLU(),
@@ -18,7 +17,7 @@ class CifarSmall(nn.Module):
             nn.MaxPool2d(2)
         )
         self.pool = nn.AdaptiveAvgPool2d(1)
-        self.proj = nn.Linear(256, embed_dim)  # aligns to teacher space
+        self.proj = nn.Linear(256, embed_dim)
         self.classifier = nn.Linear(embed_dim, num_classes)
 
     def forward(self, x):

@@ -8,7 +8,7 @@ def get_embedding_dim(name):
         'mobilenet_v3_small': 576,
         'shufflenet_v2_x0_5': 1024,
         'squeezenet1_0': 512,
-        'custom': 32
+        'custom': 64
     }
     return dims.get(name, 64)
 

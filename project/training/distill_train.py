@@ -15,7 +15,6 @@ def train_distillation(teacher, student, train_loader, val_loader, test_loader,
     wandb.init(
         project="distill_uni_proj", 
         name=f"{student_name}_alpha_{alpha}",
-        mode="offline",
         config={
             "learning_rate": lr,
             "epochs": epochs,
@@ -69,6 +68,8 @@ def train_distillation(teacher, student, train_loader, val_loader, test_loader,
         train_loss /= len(train_loader)
         val_loss, val_acc = validate(student, val_loader)
 
+        current_lr = optimizer.param_groups[0]['lr']
+
         avg_cls_loss = cls_loss_sum / len(train_loader)
         avg_distill_loss = distill_sum / len(train_loader)
         wandb.log({
@@ -77,10 +78,11 @@ def train_distillation(teacher, student, train_loader, val_loader, test_loader,
             "val_loss": val_loss,
             "val_acc": val_acc,
             "cls_loss": avg_cls_loss,
-            "distill_loss": avg_distill_loss
+            "distill_loss": avg_distill_loss,
+            "learning_rate": current_lr
         })
 
-        scheduler.step
+        scheduler.step()
         print(f"Epoch {epoch} | Train Loss: {train_loss:.4f} | Acc: {val_acc:.2f}% | Cls_loss:  {avg_cls_loss:.2f} | distill_loss: {avg_distill_loss:.2f}")
 
     test_loss, test_acc = validate(student, test_loader)

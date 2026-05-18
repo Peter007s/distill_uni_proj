@@ -36,26 +36,41 @@ def log_pair_embeddings(model_a, model_b, dataloader, name_a, name_b, run_name, 
     reducer = PCA(n_components=2) if method == 'PCA' else TSNE(n_components=2, random_state=42, perplexity=30)
     reduced = reducer.fit_transform(combined)
     
+    
     n = len(embs_a)
-    fig, ax = plt.subplots(figsize=(9, 6))
+    
+    # TWORZYMY DWA WYKRESY OBOK SIEBIE
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6), sharex=True, sharey=True)
     cmap = plt.get_cmap('tab10', len(config.CIFAR10_CLASSES))
     
     for i, cls_name in enumerate(config.CIFAR10_CLASSES):
         mask = all_labels == i
-        ax.scatter(reduced[:n, 0][mask], reduced[:n, 1][mask], 
-                   c=[cmap(i)], marker='o', s=25, alpha=0.7, edgecolor='none',
-                   label=f'{name_a}' if i == 0 else None)
-        ax.scatter(reduced[n:, 0][mask], reduced[n:, 1][mask], 
-                   c=[cmap(i)], marker='x', s=35, alpha=0.9,
-                   label=f'{name_b}' if i == 0 else None)
         
-    ax.set_title(f"{method}: {name_a} vs {name_b} ({run_name})")
-    ax.set_xlabel("Component 1")
-    ax.set_ylabel("Component 2")
-    ax.grid(True, linestyle='--', alpha=0.3)
-    ax.legend(title="Models", loc='best')
+        # Oś 1: Model A
+        ax1.scatter(reduced[:n, 0][mask], reduced[:n, 1][mask], 
+                   c=[cmap(i)], marker='o', s=15, alpha=0.7, edgecolor='none', label=cls_name)
+        
+        # Oś 2: Model B
+        ax2.scatter(reduced[n:, 0][mask], reduced[n:, 1][mask], 
+                   c=[cmap(i)], marker='o', s=15, alpha=0.7, edgecolor='none', label=cls_name)
+        
+    ax1.set_title(f"{name_a}")
+    ax2.set_title(f"{name_b}")
+    ax1.grid(True, linestyle='--', alpha=0.3)
+    ax2.grid(True, linestyle='--', alpha=0.3)
     
+    fig.suptitle(f"{method}: Porównanie przestrzeni ({run_name})", fontsize=14)
+    
+    # Wspólna legenda poza wykresami
+    handles, labels = ax1.get_legend_handles_labels()
+    fig.legend(handles, labels, loc='center right', bbox_to_anchor=(1.1, 0.5), title="Klasy")
+    
+    plt.tight_layout()
+    
+    # Zapis i logowanie
+    fig.savefig(f"embeddings_{method}_{name_a}_vs_{name_b}.png", bbox_inches='tight')
     wandb.log({f"embeddings/{method}_{name_a}_vs_{name_b}": wandb.Image(fig)})
+    plt.show() # Jeśli odpalasz to w Jupyterze
     plt.close(fig)
 
 def log_embeddings_to_wandb(model, dataloader, run_name, num_batches=20, method='PCA'):
